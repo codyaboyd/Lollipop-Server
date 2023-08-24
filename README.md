@@ -1,7 +1,7 @@
 # Lollipop-Server
 An easy 1-liner static web server, file server, system monitor, and website cloning CLI program. No install required.
 
-# Instructions
+# Unix/Linux Instructions
 ./lollipop -h
-!For Windows!:
+# Windows Instructions:
 lollipop.exe -h
