@@ -1,172 +1,182 @@
-# Lollipop 🍭
+# Lollipop 🍭
 
-*A Swiss‑army knife CLI for lightweight file servers, website scraping, and live system monitoring—written in Node.js.*
+A lightweight Node.js CLI for:
+
+- serving files and folders over HTTP,
+- mirroring a website to local files,
+- viewing live system metrics, and
+- running JavaScript utilities.
 
 ---
 
-## Table of Contents
+## Table of Contents
 
-1. [Features](#features)
-2. [Prerequisites](#prerequisites)
-3. [Installation](#installation)
-4. [Quick Start](#quick-start)
-5. [CLI Usage](#cli-usage)
-6. [Configuration File (](#configuration-file-lollipop)[`lolli.pop`](#configuration-file-lollipop)[)](#configuration-file-lollipop)
+1. [What It Does](#what-it-does)
+2. [Requirements](#requirements)
+3. [Install](#install)
+4. [Quick Start](#quick-start)
+5. [CLI Reference](#cli-reference)
+6. [Config File (`lolli.pop`)](#config-file-lollipop)
 7. [Examples](#examples)
-8. [System Monitor Dashboard](#system-monitor-dashboard)
-9. [Website Mirroring ("Sucker")](#website-mirroring-sucker)
-10. [Executing Scripts](#executing-scripts)
-11. [Security Notes](#security-notes)
-12. [Logging & Graceful Shutdown](#logging--graceful-shutdown)
-13. [Contributing](#contributing)
-14. [License](#license)
+8. [Notes & Caveats](#notes--caveats)
+9. [Contributing](#contributing)
+10. [License](#license)
 
 ---
 
-## Features
+## What It Does
 
-- **Static File Server** – Serve any folder on an HTTP port of your choice, or host every sub‑folder automatically starting at port `9000`.
-- **Password‑Protected Server** – Add basic authentication to any server with the `-p` flag or in the config file.
-- **Website Mirror ("Sucker")** – Crawl an entire site and save a fully‑offline copy to a local directory.
-- **Live System Monitor** – Built‑in dashboard that exposes CPU, memory, and process info over HTTP with password protection.
-- **Script Runner** – Execute arbitrary JavaScript/Node scripts via `lollipop js` or from the config file.
-- **Declarative Config** – Orchestrate multiple servers, monitors, scrapers, and scripts from a single `lolli.pop` file.
-- **Cross‑Platform** – Works anywhere Node ≥ 18 runs (Linux, macOS, Windows).
+### 1) Static file server
+- Serve a directory with a visual file browser.
+- If no arguments are provided, Lollipop serves **every subfolder** in the current directory starting at port `9000`.
 
-## Prerequisites
+### 2) Password-protected server
+- Add Basic Auth protection to file serving with `-p <password>`.
 
-- **Node.js ≥ 18**\
-  (ESM & native `fetch` support assumed)
+### 3) System monitor dashboard
+- Starts an HTTP dashboard/API for CPU, memory, disks, processes, and swap usage.
+- Protected by Basic Auth.
 
-## Installation
+### 4) Website mirroring (`sucker`)
+- Downloads a target website and saves assets locally (`img`, `js`, `css`, `fonts`).
+
+### 5) Script execution (`js` / `execute`)
+- Runs a Node.js script file through the CLI.
+
+---
+
+## Requirements
+
+- **Node.js 18+**
+- npm (for dependency install)
+
+---
+
+## Install
 
 ```bash
-# 1. Clone the repo
-$ git clone https://github.com/your‑org/lollipop.git
-$ cd lollipop
+# Clone
+git clone <your-repo-url>
+cd Lollipop-Server
 
-# 2. Install dependencies (none besides built‑ins!)
-$ npm install    # optional: only if you add extra packages
-
-# 3. Make it global (optional)
-$ npm link       # allows using the `lollipop` command anywhere
+# Install dependencies
+npm install
 ```
 
-## Quick Start
+### Optional: global command
+If you want to call `lollipop` directly, add a global binary mapping in `package.json` (or run via `node lollipop.js` as shown below).
+
+---
+
+## Quick Start
 
 ```bash
-# Serve every sub‑folder in the current directory, starting at port 9000
-$ lollipop
+# Show help
+node lollipop.js -h
 
-# Serve ./public on port 8080
-$ lollipop ./public 8080
+# Serve a folder
+node lollipop.js ./public 8080
 
-# Same, but require the password "secret"
-$ lollipop ./public 8080 -p secret
+# Serve with Basic Auth password
+node lollipop.js ./public 8080 -p secret
+
+# Monitor dashboard
+node lollipop.js monitor 7000 myPassword
+
+# Mirror a website
+node lollipop.js sucker https://example.org mirror
+
+# Run a script
+node lollipop.js js ./scripts/task.js
 ```
 
-## CLI Usage
+---
+
+## CLI Reference
 
 ```text
 Usage: lollipop [OPTIONS] [COMMANDS]
 
 Options:
-  -c <config_file>      Use a lolli.pop configuration file.
-  <directory> <port>    Serve a directory on the specified port.
-  -p <password>         Protect the server with Basic Auth.
-  -h                    Display CLI help.
+  -c <config_file>         Use a lolli.pop configuration file
+  <directory> <port>       Serve a directory at the specified port
+  -p <password>            Protect the server with Basic Auth
+  -h                       Show help
 
 Commands:
-  monitor <port> <pass>       Start the system monitor dashboard.
-  sucker  <url>  <folder>     Mirror a full website locally.
-  js      <script.js>         Run a JavaScript/Node script.
+  monitor <port> <pass>    Start the system monitor dashboard
+  sucker <url> <folder>    Mirror a website into a folder
+  js <script.js>           Execute a JavaScript file
+  execute <script.js>      Alias for js
 ```
 
-> **Tip** : Omitting all arguments fires up a server for **each** sub‑folder in the current working directory—handy for rapid prototyping multiple micro‑sites.
+### Default behavior (no args)
+Running `node lollipop.js` with no arguments scans the current working directory and starts one server per subdirectory, beginning at port `9000`.
 
-## Configuration File (`lolli.pop`)
+---
 
-Define an entire stack declaratively:
+## Config File (`lolli.pop`)
 
-```
+You can orchestrate multiple actions from one file:
+
+```text
 (monitor 5000 My$Up3rPass)
 (sucker https://example.com backupSite)
 (js ./scripts/cleanup.js)
-(/var/www/siteA 4000 -p admin123)
+(./siteA 4000 -p admin123)
 (./docs 4100)
 ```
 
-### Syntax Rules
-
-- Wrap each declaration in parentheses.
-- First token decides the **type**: `monitor`, `sucker`, `js`, or a **path** (for a file server).
-- **Order matters**: they run sequentially from top to bottom.
-- Ports must be unique across the file.
-
-Launch all services in one go:
+Start everything:
 
 ```bash
-$ lollipop -c lolli.pop
+node lollipop.js -c lolli.pop
 ```
+
+### Rules
+- One declaration per parenthesized line.
+- First token determines declaration type:
+  - `monitor`
+  - `sucker`
+  - `js`
+  - otherwise interpreted as `<directory> <port> [-p <password>]`
+- Ports must be unique across all server/monitor declarations.
+
+---
 
 ## Examples
 
-| Goal                                             | Command                                      |
-| ------------------------------------------------ | -------------------------------------------- |
-| Spin up a password‑protected server on port 9001 | `lollipop ./site 9001 -p swordfish`          |
-| Mirror example.org into ./mirror                 | `lollipop sucker https://example.org mirror` |
-| Launch the live system monitor on port 7000      | `lollipop monitor 7000 myPass`               |
-| Execute a maintenance script                     | `lollipop js ./scripts/maintain.js`          |
+| Goal | Command |
+|---|---|
+| Serve all subfolders in current directory | `node lollipop.js` |
+| Secure server on port 9001 | `node lollipop.js ./site 9001 -p swordfish` |
+| Run monitor on port 7000 | `node lollipop.js monitor 7000 myPass` |
+| Mirror example.org | `node lollipop.js sucker https://example.org mirror` |
+| Execute a script | `node lollipop.js execute ./scripts/maintain.js` |
 
-## System Monitor Dashboard
+---
 
-The monitor exposes a minimal single‑page UI with:
+## Notes & Caveats
 
-- CPU & memory graphs (1‑, 5‑, 15‑min load)
-- Disk usage per mount
-- Top 5 processes by memory & CPU
-- System uptime & host info
+- Basic Auth passwords are compared as plaintext.
+- For internet-exposed usage, place behind a reverse proxy/VPN and use HTTPS.
+- `sucker` relies on external pages and may fail on highly dynamic/SPA-heavy websites.
+- Press `Ctrl+C` to stop; the app prints `Lollipop!` before exit.
 
-> Auth: **Basic Auth** using the password provided in the CLI or config.
-
-## Website Mirroring ("Sucker")
-
-`sucker` is a thin wrapper around `wget`‑like logic that:
-
-1. Fetches the entry HTML.
-2. Parses & queues discovered assets (CSS, JS, images, PDFs, etc.).
-3. Rewrites links for fully‑offline browsing.
-4. Stores the entire site tree under the target folder.
-
-Great for demos or archiving docs!
-
-## Executing Scripts
-
-`lollipop js path/to/script.js` simply loads the file and executes it via Node in the same process.  The script may `export` a function or just run top‑level code—itʼs up to you.
-
-Returned values (if any) are logged to stdout for quick inspection.
-
-## Security Notes
-
-- Passwords are **not** hashed—use a reverse proxy or VPN for production‑grade security.
-- Verify mirrored sitesʼ licenses before redistributing.
-
-## Logging & Graceful Shutdown
-
-- All actions log to stdout.
-- Press `Ctrl+C` once to stop; youʼll see the farewell message **"Lollipop!"** before the process exits.
+---
 
 ## Contributing
 
-Pull requests are welcome!  Please open an issue first to discuss what you would like to change.
+PRs are welcome. Suggested flow:
 
 1. Fork the repo
-2. Create a feature branch (`git checkout -b feat/amazing`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feat/amazing`)
-5. Open a Pull Request 🍻
+2. Create a branch
+3. Make your changes
+4. Run checks
+5. Open a PR
+
+---
 
 ## License
 
-MIT © 2025
-
+MIT
