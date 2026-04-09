@@ -88,6 +88,18 @@ npm run build:bin:macos
 npm run build:bin:win
 ```
 
+### Build a packaged Electron app for the current machine (embedded binaries)
+
+This command will:
+
+1. compile a `lollipop` CLI binary for your current OS/architecture,
+2. download the matching `cloudflared` binary, and
+3. package the Electron controller with both binaries embedded under `resources/bin`.
+
+```bash
+npm run build:electron:target
+```
+
 ---
 
 ## 5-Minute Quick Start
