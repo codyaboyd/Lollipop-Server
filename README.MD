@@ -118,6 +118,7 @@ Options:
   -c <config_file>      Use a lolli.pop configuration file
   <directory> <port>    Serve a directory on the specified port
   -p <password>         Enable Basic Auth for folder serving
+  --tunnel              Start a Cloudflare tunnel for the server
   -h                    Show help
 
 Commands:
@@ -145,8 +146,8 @@ You can run multiple actions from one file:
 (monitor 5000 My$Up3rPass)
 (sucker https://example.com backupSite)
 (js ./scripts/cleanup.js)
-(./siteA 4000 -p admin123)
-(./docs 4100)
+(./siteA 4000 -p admin123 --tunnel)
+(./docs 4100 --tunnel)
 ```
 
 Run it:
@@ -162,7 +163,7 @@ node lollipop.js -c lolli.pop
   - `monitor`
   - `sucker`
   - `js`
-  - otherwise treated as `<directory> <port> [-p <password>]`
+  - otherwise treated as `<directory> <port> [-p <password>] [--tunnel]`
 - Ports must be unique across server and monitor declarations.
 
 ---
@@ -174,6 +175,7 @@ node lollipop.js -c lolli.pop
 | Serve all subfolders in current directory | `node lollipop.js` |
 | Serve a folder on port 9001 | `node lollipop.js ./site 9001` |
 | Add Basic Auth to server | `node lollipop.js ./site 9001 -p swordfish` |
+| Start server + Cloudflare tunnel | `node lollipop.js ./site 9001 --tunnel` |
 | Start monitor on port 7000 | `node lollipop.js monitor 7000 myPass` |
 | Mirror `example.org` locally | `node lollipop.js sucker https://example.org mirror` |
 | Execute a script file | `node lollipop.js execute ./scripts/maintain.js` |
