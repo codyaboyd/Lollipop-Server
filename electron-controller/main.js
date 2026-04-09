@@ -34,6 +34,18 @@ function buildArgs(config) {
     return ['monitor', String(config.port), config.password];
   }
 
+  if (config.mode === 'sucker') {
+    return ['sucker', config.url, config.folder];
+  }
+
+  if (config.mode === 'script') {
+    return [config.command, config.script];
+  }
+
+  if (config.mode === 'config') {
+    return ['-c', config.configPath];
+  }
+
   const args = [config.directory, String(config.port)];
   if (config.password) {
     args.push('-p', config.password);
@@ -78,6 +90,19 @@ function resolveRuntime() {
 ipcMain.handle('lollipop:pick-directory', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory', 'createDirectory']
+  });
+
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
+  }
+
+  return result.filePaths[0];
+});
+
+
+ipcMain.handle('lollipop:pick-file', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile']
   });
 
   if (result.canceled || result.filePaths.length === 0) {

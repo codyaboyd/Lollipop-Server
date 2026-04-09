@@ -10,14 +10,17 @@
   <main>
     <header class="app-header">
       <h1>Lollipop Controller</h1>
-      <p class="subtitle">Optional desktop GUI for launching a Lollipop server with optional Cloudflare tunnel.</p>
+      <p class="subtitle">Desktop GUI for all Lollipop capabilities: file server, monitor, website mirror, script execution, and config runs.</p>
     </header>
 
     <section class="panel">
       <h2>Mode</h2>
-      <div class="row compact">
+      <div class="row compact mode-grid">
         <label><input type="radio" name="mode" value="server" checked /> File server</label>
         <label><input type="radio" name="mode" value="monitor" /> Monitor dashboard</label>
+        <label><input type="radio" name="mode" value="sucker" /> Mirror website (sucker)</label>
+        <label><input type="radio" name="mode" value="script" /> Run JavaScript (js/execute)</label>
+        <label><input type="radio" name="mode" value="config" /> Run config file (-c)</label>
       </div>
     </section>
 
@@ -52,6 +55,47 @@
       <div class="row">
         <label for="monitorPassword">Password</label>
         <input id="monitorPassword" type="text" placeholder="Required" />
+      </div>
+    </section>
+
+    <section class="panel hidden" id="suckerPanel">
+      <h2>Website Mirror Settings</h2>
+      <div class="row">
+        <label for="suckerUrl">Website URL</label>
+        <input id="suckerUrl" type="url" placeholder="https://example.org" />
+      </div>
+      <div class="row compact">
+        <label for="suckerFolder">Output folder name (created in project root)</label>
+        <input id="suckerFolder" type="text" placeholder="mirror" />
+      </div>
+    </section>
+
+    <section class="panel hidden" id="scriptPanel">
+      <h2>JavaScript Execution Settings</h2>
+      <div class="row">
+        <label for="scriptPath">Script file</label>
+        <div class="inline">
+          <input id="scriptPath" type="text" placeholder="/path/to/script.js" />
+          <button id="pickScript" type="button">Browse</button>
+        </div>
+      </div>
+      <div class="row compact">
+        <label for="scriptCommand">Command</label>
+        <select id="scriptCommand">
+          <option value="js" selected>js</option>
+          <option value="execute">execute (alias)</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="configPanel">
+      <h2>Config Run Settings</h2>
+      <div class="row compact">
+        <label for="configPath">Config file (lolli.pop)</label>
+        <div class="inline">
+          <input id="configPath" type="text" placeholder="/path/to/lolli.pop" />
+          <button id="pickConfig" type="button">Browse</button>
+        </div>
       </div>
     </section>
 

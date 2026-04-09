@@ -2,12 +2,14 @@
 
 This is an optional cross-platform desktop GUI that wraps the existing `lollipop.js` CLI.
 
-It lets users:
+It lets users run all CLI capabilities from a GUI:
 
 - start/stop a file server,
-- enable optional Basic Auth,
-- enable Cloudflare tunnel with `--tunnel`, and
-- start monitor mode with password.
+- enable optional Basic Auth and Cloudflare tunnel (`--tunnel`),
+- start monitor mode with password,
+- mirror websites with `sucker <url> <folder>`,
+- run JavaScript with `js <script.js>` or `execute <script.js>`, and
+- run config files with `-c <config_file>`.
 
 ## Requirements
 

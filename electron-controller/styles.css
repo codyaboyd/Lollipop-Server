@@ -80,6 +80,10 @@ h1 {
   margin-bottom: 0;
 }
 
+.mode-grid {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
 .inline {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -92,6 +96,7 @@ label {
 }
 
 input,
+select,
 button {
   border: 1px solid var(--stroke);
   border-radius: 10px;
@@ -100,7 +105,8 @@ button {
   min-height: 40px;
 }
 
-input {
+input,
+select {
   color: #fff;
   background: #161126;
 }
