@@ -72,6 +72,11 @@ function extractTarball(tarballPath, outputDirectory) {
 }
 
 async function ensureCloudflaredBinary() {
+    const configuredBinaryPath = process.env.LOLLIPOP_CLOUDFLARED_PATH;
+    if (configuredBinaryPath && fs.existsSync(configuredBinaryPath)) {
+        return configuredBinaryPath;
+    }
+
     const binaryName = resolveBinaryName();
     const binDirectory = path.join(__dirname, '..', '.lollipop', 'bin');
     ensureDirectory(binDirectory);

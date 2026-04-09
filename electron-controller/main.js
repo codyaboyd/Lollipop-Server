@@ -46,6 +46,35 @@ function buildArgs(config) {
   return args;
 }
 
+function resolveBundledBinary(binaryName) {
+  return path.join(process.resourcesPath, 'bin', binaryName);
+}
+
+function resolveRuntime() {
+  if (!app.isPackaged) {
+    const appRoot = path.resolve(__dirname, '..');
+    return {
+      command: process.execPath,
+      argsPrefix: [path.join(appRoot, 'lollipop.js')],
+      cwd: appRoot,
+      env: process.env
+    };
+  }
+
+  const lollipopBinary = resolveBundledBinary(process.platform === 'win32' ? 'lollipop.exe' : 'lollipop');
+  const cloudflaredBinary = resolveBundledBinary(process.platform === 'win32' ? 'cloudflared.exe' : 'cloudflared');
+
+  return {
+    command: lollipopBinary,
+    argsPrefix: [],
+    cwd: process.resourcesPath,
+    env: {
+      ...process.env,
+      LOLLIPOP_CLOUDFLARED_PATH: cloudflaredBinary
+    }
+  };
+}
+
 ipcMain.handle('lollipop:pick-directory', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory', 'createDirectory']
@@ -63,14 +92,14 @@ ipcMain.handle('lollipop:start', async (_event, config) => {
     return { ok: false, message: 'Lollipop is already running.' };
   }
 
-  const appRoot = path.resolve(__dirname, '..');
-  const cliPath = path.join(appRoot, 'lollipop.js');
-  const args = [cliPath, ...buildArgs(config)];
+  const runtime = resolveRuntime();
+  const args = [...runtime.argsPrefix, ...buildArgs(config)];
 
-  sendLog(`$ ${process.execPath} ${args.map((arg) => JSON.stringify(arg)).join(' ')}`);
+  sendLog(`$ ${runtime.command} ${args.map((arg) => JSON.stringify(arg)).join(' ')}`);
 
-  lollipopProcess = spawn(process.execPath, args, {
-    cwd: appRoot,
+  lollipopProcess = spawn(runtime.command, args, {
+    cwd: runtime.cwd,
+    env: runtime.env,
     stdio: ['ignore', 'pipe', 'pipe']
   });
 

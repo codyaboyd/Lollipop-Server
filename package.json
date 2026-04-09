@@ -13,6 +13,7 @@
     "build:bin": "node ./node_modules/pkg/lib-es5/bin.js . --out-path dist",
     "build:bin:linux": "node ./node_modules/pkg/lib-es5/bin.js . --targets node18-linux-x64 --output dist/lollipop-linux",
     "build:bin:macos": "node ./node_modules/pkg/lib-es5/bin.js . --targets node18-macos-x64 --output dist/lollipop-macos",
-    "build:bin:win": "node ./node_modules/pkg/lib-es5/bin.js . --targets node18-win-x64 --output dist/lollipop-win.exe"
+    "build:bin:win": "node ./node_modules/pkg/lib-es5/bin.js . --targets node18-win-x64 --output dist/lollipop-win.exe",
+    "build:electron:target": "node ./scripts/build-electron-target.js"
   }
 }
