@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lollipop Controller</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main>
+    <h1>Lollipop Controller</h1>
+    <p class="subtitle">Optional desktop GUI for launching a Lollipop server with optional Cloudflare tunnel.</p>
+
+    <section class="panel">
+      <h2>Mode</h2>
+      <div class="row compact">
+        <label><input type="radio" name="mode" value="server" checked /> File server</label>
+        <label><input type="radio" name="mode" value="monitor" /> Monitor dashboard</label>
+      </div>
+    </section>
+
+    <section class="panel" id="serverPanel">
+      <h2>Server Settings</h2>
+      <div class="row">
+        <label for="directory">Directory</label>
+        <div class="inline">
+          <input id="directory" type="text" placeholder="/path/to/folder" />
+          <button id="pickDirectory" type="button">Browse</button>
+        </div>
+      </div>
+      <div class="row">
+        <label for="port">Port</label>
+        <input id="port" type="number" min="1" max="65535" value="8080" />
+      </div>
+      <div class="row">
+        <label for="password">Basic Auth Password (optional)</label>
+        <input id="password" type="text" placeholder="Leave blank for no auth" />
+      </div>
+      <div class="row compact">
+        <label><input id="tunnel" type="checkbox" /> Start Cloudflare tunnel (`--tunnel`)</label>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="monitorPanel">
+      <h2>Monitor Settings</h2>
+      <div class="row">
+        <label for="monitorPort">Port</label>
+        <input id="monitorPort" type="number" min="1" max="65535" value="7000" />
+      </div>
+      <div class="row">
+        <label for="monitorPassword">Password</label>
+        <input id="monitorPassword" type="text" placeholder="Required" />
+      </div>
+    </section>
+
+    <section class="panel actions">
+      <button id="startBtn" type="button">Start Lollipop</button>
+      <button id="stopBtn" type="button" disabled>Stop</button>
+      <span id="status" class="status idle">Idle</span>
+    </section>
+
+    <section class="panel">
+      <h2>Logs</h2>
+      <pre id="logs"></pre>
+    </section>
+  </main>
+
+  <script src="./renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: #e4e9f0;
+  background: #151a21;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #151a21;
+  color: #e4e9f0;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  margin: 0;
+}
+
+.subtitle {
+  margin-top: 8px;
+  color: #b1bfd5;
+}
+
+.panel {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #2b3342;
+  border-radius: 10px;
+  background: #1c2330;
+}
+
+.row {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.row.compact {
+  margin-bottom: 0;
+}
+
+.inline {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+label {
+  font-size: 0.93rem;
+  color: #d7e0ec;
+}
+
+input,
+button {
+  border: 1px solid #3a465a;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+input {
+  color: #f7fbff;
+  background: #121721;
+}
+
+button {
+  background: #2979ff;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.status.idle {
+  color: #8fa2bf;
+}
+
+.status.running {
+  color: #74e290;
+}
+
+.hidden {
+  display: none;
+}
+
+pre {
+  margin: 0;
+  min-height: 220px;
+  max-height: 280px;
+  overflow: auto;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #313d52;
+  background: #0d1118;
+  color: #9fd38a;
+  white-space: pre-wrap;
+}

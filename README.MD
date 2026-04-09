@@ -107,6 +107,16 @@ node lollipop.js js ./scripts/task.js
 node lollipop.js execute ./scripts/task.js
 ```
 
+### 7) Optional desktop GUI controller (Electron)
+
+```bash
+cd electron-controller
+npm install
+npm start
+```
+
+This launches a cross-platform desktop app that wraps `lollipop.js` and can start file servers, monitor mode, and optional `--tunnel`.
+
 ---
 
 ## Command Reference
@@ -190,6 +200,7 @@ node lollipop.js -c lolli.pop
 ├── lolli.pop          # Example config file
 ├── mechs/             # Command implementations (server, monitor, sucker, execute)
 ├── package.json
+├── electron-controller/  # Optional Electron desktop GUI
 └── README.MD
 ```
 
