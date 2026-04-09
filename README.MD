@@ -65,6 +65,29 @@ npm install
 
 > This project currently runs via `node lollipop.js` (there is no preconfigured global `lollipop` binary in `package.json`).
 
+### Compile the CLI to a binary (Vercel `pkg`)
+
+After `npm install`, you can generate standalone binaries with these **node-based** commands:
+
+```bash
+# auto-detect host target and write output into ./dist
+node ./node_modules/pkg/lib-es5/bin.js . --out-path dist
+
+# explicit targets
+node ./node_modules/pkg/lib-es5/bin.js . --targets node18-linux-x64 --output dist/lollipop-linux
+node ./node_modules/pkg/lib-es5/bin.js . --targets node18-macos-x64 --output dist/lollipop-macos
+node ./node_modules/pkg/lib-es5/bin.js . --targets node18-win-x64 --output dist/lollipop-win.exe
+```
+
+Or run the equivalent npm scripts:
+
+```bash
+npm run build:bin
+npm run build:bin:linux
+npm run build:bin:macos
+npm run build:bin:win
+```
+
 ---
 
 ## 5-Minute Quick Start

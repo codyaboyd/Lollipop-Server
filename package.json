@@ -4,5 +4,15 @@
     "express": "^4.18.2",
     "systeminformation": "^5.19.0",
     "website-scraper": "^4.2.3"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "bin": "lollipop.js",
+  "scripts": {
+    "build:bin": "node ./node_modules/pkg/lib-es5/bin.js . --out-path dist",
+    "build:bin:linux": "node ./node_modules/pkg/lib-es5/bin.js . --targets node18-linux-x64 --output dist/lollipop-linux",
+    "build:bin:macos": "node ./node_modules/pkg/lib-es5/bin.js . --targets node18-macos-x64 --output dist/lollipop-macos",
+    "build:bin:win": "node ./node_modules/pkg/lib-es5/bin.js . --targets node18-win-x64 --output dist/lollipop-win.exe"
   }
 }
