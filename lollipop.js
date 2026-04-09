@@ -105,6 +105,10 @@ Structure of lolli.pop file:
     `);
 }
 
+function isValidPort(port) {
+    return Number.isInteger(port) && port >= 0 && port <= 65535;
+}
+
 async function main() {
     const args = process.argv.slice(2);
 
@@ -120,7 +124,7 @@ async function main() {
         return;
     }
 
-    if (args[0] === '-h') {
+    if (args[0] === '-h' || args[0] === '--help') {
         displayHelp();
         return;
     }
@@ -149,7 +153,7 @@ async function main() {
     if (args[0] === 'monitor') {
         const port = parseInt(args[1]);
         const password = args[2];
-        if (!port || !password) {
+        if (!isValidPort(port) || !password) {
             console.error('You must provide a port and a password for the monitor.');
             return;
         }
@@ -160,6 +164,10 @@ async function main() {
     try {
         if (args[0] === '-c') {
             const configFile = args[1];
+            if (!configFile) {
+                console.error('You must provide a config file path after -c.');
+                return;
+            }
             const parsedConfigs = parseConfigFile(configFile);
 
             for (const config of parsedConfigs) {
@@ -170,6 +178,10 @@ async function main() {
                 }
 
                 if (config.type === 'server') {
+                    if (!isValidPort(config.port)) {
+                        console.error(`Invalid port in config for ${config.path}: ${config.port}`);
+                        continue;
+                    }
                     if (config.password) {
                         startSecuredServer(config.path, config.port, config.password);
                     } else {
@@ -178,6 +190,10 @@ async function main() {
 
                     await maybeStartTunnel(config.tunnel, config.port);
                 } else if (config.type === 'monitor') {
+                    if (!isValidPort(config.port)) {
+                        console.error(`Invalid monitor port in config: ${config.port}`);
+                        continue;
+                    }
                     startSysmonServer(config.port, config.password);
                 } else if (config.type === 'sucker') {
                     saveCompleteWebsite(config.link, config.directory);
@@ -189,6 +205,10 @@ async function main() {
             const passwordIndex = args.indexOf('-p');
             const tunnel = args.includes('--tunnel');
             const password = passwordIndex !== -1 ? args[passwordIndex + 1] : null;
+            if (!isValidPort(port)) {
+                console.error('You must provide a valid port between 0 and 65535.');
+                return;
+            }
 
             if (password) {
                 startSecuredServer(directoryPath, port, password);
