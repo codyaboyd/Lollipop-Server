@@ -1,40 +1,73 @@
 :root {
+  --bg-0: #130f1f;
+  --bg-1: #1a1430;
+  --panel: #231b3a;
+  --panel-soft: #2b2146;
+  --stroke: #4d3c73;
+  --text: #f8f2ff;
+  --text-soft: #d6c8ef;
+  --accent: #ff5ea8;
+  --accent-2: #8d6bff;
+  --success: #7ff0b8;
+  --idle: #bcaed8;
+
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  color: #e4e9f0;
-  background: #151a21;
+  color: var(--text);
+  background: var(--bg-0);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
-  background: #151a21;
-  color: #e4e9f0;
+  color: var(--text);
+  background:
+    radial-gradient(1000px 380px at 8% -10%, rgba(255, 94, 168, 0.22), transparent 62%),
+    radial-gradient(900px 400px at 92% -8%, rgba(141, 107, 255, 0.2), transparent 58%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 85%);
 }
 
 main {
-  max-width: 900px;
+  width: min(100%, 980px);
   margin: 0 auto;
-  padding: 24px;
+  padding: 18px clamp(12px, 2.2vw, 24px) 24px;
+}
+
+.app-header {
+  margin-bottom: 12px;
 }
 
 h1 {
   margin: 0;
+  font-size: clamp(1.45rem, 2vw + 1rem, 2rem);
+  letter-spacing: 0.01em;
 }
 
 .subtitle {
   margin-top: 8px;
-  color: #b1bfd5;
+  color: var(--text-soft);
+  font-size: 0.98rem;
 }
 
 .panel {
-  margin-top: 20px;
-  padding: 16px;
-  border: 1px solid #2b3342;
-  border-radius: 10px;
-  background: #1c2330;
+  margin-top: 14px;
+  padding: clamp(12px, 1.8vw, 16px);
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%), var(--panel);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.panel h2 {
+  margin: 0 0 10px;
+  font-size: 1.02rem;
 }
 
 .row {
@@ -49,32 +82,49 @@ h1 {
 
 .inline {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
 }
 
 label {
   font-size: 0.93rem;
-  color: #d7e0ec;
+  color: var(--text);
 }
 
 input,
 button {
-  border: 1px solid #3a465a;
-  border-radius: 8px;
-  padding: 10px;
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  padding: 10px 11px;
   font-size: 0.95rem;
+  min-height: 40px;
 }
 
 input {
-  color: #f7fbff;
-  background: #121721;
+  color: #fff;
+  background: #161126;
+}
+
+input::placeholder {
+  color: #b8a4d8;
+}
+
+input:focus,
+button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 58%, white);
+  outline-offset: 1px;
 }
 
 button {
-  background: #2979ff;
+  border-color: #7e5bd1;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 64%, var(--accent-2)), color-mix(in srgb, var(--accent) 38%, var(--accent-2)));
   color: #fff;
   cursor: pointer;
+  font-weight: 600;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.05);
 }
 
 button:disabled {
@@ -82,23 +132,36 @@ button:disabled {
   cursor: not-allowed;
 }
 
+#stopBtn {
+  background: linear-gradient(180deg, #5e4f7f, #493b66);
+}
+
 .actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  flex: 1 1 160px;
 }
 
 .status {
   margin-left: auto;
-  font-weight: 600;
+  font-weight: 700;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: var(--panel-soft);
 }
 
 .status.idle {
-  color: #8fa2bf;
+  color: var(--idle);
 }
 
 .status.running {
-  color: #74e290;
+  color: var(--success);
 }
 
 .hidden {
@@ -108,12 +171,31 @@ button:disabled {
 pre {
   margin: 0;
   min-height: 220px;
-  max-height: 280px;
+  max-height: min(40vh, 380px);
   overflow: auto;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #313d52;
-  background: #0d1118;
-  color: #9fd38a;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #4a3a6c;
+  background: #0e0a18;
+  color: #c7ffcb;
   white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  .inline {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    align-items: stretch;
+  }
+
+  .status {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
 }
