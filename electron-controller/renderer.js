@@ -1,13 +1,31 @@
 const modeInputs = document.querySelectorAll('input[name="mode"]');
-const serverPanel = document.getElementById('serverPanel');
-const monitorPanel = document.getElementById('monitorPanel');
+const panelsByMode = {
+  server: document.getElementById('serverPanel'),
+  monitor: document.getElementById('monitorPanel'),
+  sucker: document.getElementById('suckerPanel'),
+  script: document.getElementById('scriptPanel'),
+  config: document.getElementById('configPanel')
+};
+
 const directoryInput = document.getElementById('directory');
 const pickDirectoryButton = document.getElementById('pickDirectory');
 const portInput = document.getElementById('port');
 const passwordInput = document.getElementById('password');
 const tunnelInput = document.getElementById('tunnel');
+
 const monitorPortInput = document.getElementById('monitorPort');
 const monitorPasswordInput = document.getElementById('monitorPassword');
+
+const suckerUrlInput = document.getElementById('suckerUrl');
+const suckerFolderInput = document.getElementById('suckerFolder');
+
+const scriptPathInput = document.getElementById('scriptPath');
+const scriptCommandSelect = document.getElementById('scriptCommand');
+const pickScriptButton = document.getElementById('pickScript');
+
+const configPathInput = document.getElementById('configPath');
+const pickConfigButton = document.getElementById('pickConfig');
+
 const startButton = document.getElementById('startBtn');
 const stopButton = document.getElementById('stopBtn');
 const status = document.getElementById('status');
@@ -26,9 +44,9 @@ function getMode() {
 }
 
 function setModeUi(mode) {
-  const isServer = mode === 'server';
-  serverPanel.classList.toggle('hidden', !isServer);
-  monitorPanel.classList.toggle('hidden', isServer);
+  Object.entries(panelsByMode).forEach(([panelMode, panel]) => {
+    panel.classList.toggle('hidden', panelMode !== mode);
+  });
 }
 
 function setRunning(running) {
@@ -62,6 +80,61 @@ function validateConfig(mode) {
         mode,
         port,
         password
+      }
+    };
+  }
+
+  if (mode === 'sucker') {
+    const url = suckerUrlInput.value.trim();
+    const folder = suckerFolderInput.value.trim();
+
+    if (!url) {
+      return { ok: false, error: 'Please provide a website URL to mirror.' };
+    }
+
+    if (!folder) {
+      return { ok: false, error: 'Please provide an output folder name.' };
+    }
+
+    return {
+      ok: true,
+      config: {
+        mode,
+        url,
+        folder
+      }
+    };
+  }
+
+  if (mode === 'script') {
+    const script = scriptPathInput.value.trim();
+    const command = scriptCommandSelect.value;
+
+    if (!script) {
+      return { ok: false, error: 'Please choose a JavaScript file to execute.' };
+    }
+
+    return {
+      ok: true,
+      config: {
+        mode,
+        command,
+        script
+      }
+    };
+  }
+
+  if (mode === 'config') {
+    const configPath = configPathInput.value.trim();
+    if (!configPath) {
+      return { ok: false, error: 'Please choose a config file.' };
+    }
+
+    return {
+      ok: true,
+      config: {
+        mode,
+        configPath
       }
     };
   }
@@ -102,6 +175,20 @@ pickDirectoryButton.addEventListener('click', async () => {
   }
 });
 
+pickScriptButton.addEventListener('click', async () => {
+  const scriptPath = await window.lollipopApi.pickFile();
+  if (scriptPath) {
+    scriptPathInput.value = scriptPath;
+  }
+});
+
+pickConfigButton.addEventListener('click', async () => {
+  const configPath = await window.lollipopApi.pickFile();
+  if (configPath) {
+    configPathInput.value = configPath;
+  }
+});
+
 startButton.addEventListener('click', async () => {
   const mode = getMode();
   const parsed = validateConfig(mode);
@@ -137,4 +224,4 @@ window.lollipopApi.onStatus(({ running }) => {
 
 setModeUi(getMode());
 setRunning(false);
-appendLog('Lollipop controller ready.');
+appendLog('Lollipop controller ready. Choose a mode to start any supported Lollipop capability.');
