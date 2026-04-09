@@ -1,123 +1,145 @@
 # Lollipop 🍭
 
-A lightweight Node.js CLI for:
+Lollipop is a lightweight Node.js CLI for quickly:
 
-- serving files and folders over HTTP,
-- mirroring a website to local files,
-- viewing live system metrics, and
-- running JavaScript utilities.
+- serving local folders over HTTP,
+- protecting file servers with Basic Auth,
+- running a live system-monitor dashboard,
+- mirroring websites to local files, and
+- executing JavaScript utility scripts.
+
+It is designed for local/dev workflows where you need simple tooling with minimal setup.
 
 ---
 
 ## Table of Contents
 
-1. [What It Does](#what-it-does)
-2. [Requirements](#requirements)
+1. [Who This Is For](#who-this-is-for)
+2. [Prerequisites](#prerequisites)
 3. [Install](#install)
-4. [Quick Start](#quick-start)
-5. [CLI Reference](#cli-reference)
-6. [Config File (`lolli.pop`)](#config-file-lollipop)
-7. [Examples](#examples)
-8. [Notes & Caveats](#notes--caveats)
-9. [Contributing](#contributing)
-10. [License](#license)
+4. [5-Minute Quick Start](#5-minute-quick-start)
+5. [Command Reference](#command-reference)
+6. [Configuration File (`lolli.pop`)](#configuration-file-lollipop)
+7. [Common New-User Tasks](#common-new-user-tasks)
+8. [Project Layout](#project-layout)
+9. [Troubleshooting](#troubleshooting)
+10. [Security Notes](#security-notes)
+11. [Contributing](#contributing)
+12. [License](#license)
 
 ---
 
-## What It Does
+## Who This Is For
 
-### 1) Static file server
-- Serve a directory with a visual file browser.
-- If no arguments are provided, Lollipop serves **every subfolder** in the current directory starting at port `9000`.
+Use Lollipop if you want a small, scriptable CLI to:
 
-### 2) Password-protected server
-- Add Basic Auth protection to file serving with `-p <password>`.
-
-### 3) System monitor dashboard
-- Starts an HTTP dashboard/API for CPU, memory, disks, processes, and swap usage.
-- Protected by Basic Auth.
-
-### 4) Website mirroring (`sucker`)
-- Downloads a target website and saves assets locally (`img`, `js`, `css`, `fonts`).
-
-### 5) Script execution (`js` / `execute`)
-- Runs a Node.js script file through the CLI.
+- share folders over your local network,
+- expose quick internal demos,
+- inspect machine metrics in a browser,
+- archive static snapshots of websites,
+- or run JS tasks from a single command tool.
 
 ---
 
-## Requirements
+## Prerequisites
 
 - **Node.js 18+**
-- npm (for dependency install)
+- **npm**
+
+Check your versions:
+
+```bash
+node --version
+npm --version
+```
 
 ---
 
 ## Install
 
 ```bash
-# Clone
 git clone <your-repo-url>
 cd Lollipop-Server
-
-# Install dependencies
 npm install
 ```
 
-### Optional: global command
-If you want to call `lollipop` directly, add a global binary mapping in `package.json` (or run via `node lollipop.js` as shown below).
+> This project currently runs via `node lollipop.js` (there is no preconfigured global `lollipop` binary in `package.json`).
 
 ---
 
-## Quick Start
+## 5-Minute Quick Start
+
+### 1) Show help
 
 ```bash
-# Show help
 node lollipop.js -h
+```
 
-# Serve a folder
+### 2) Serve a folder on port 8080
+
+```bash
 node lollipop.js ./public 8080
+```
 
-# Serve with Basic Auth password
-node lollipop.js ./public 8080 -p secret
+### 3) Serve the same folder with password protection
 
-# Monitor dashboard
+```bash
+node lollipop.js ./public 8080 -p secret123
+```
+
+### 4) Start system monitor dashboard (port + password required)
+
+```bash
 node lollipop.js monitor 7000 myPassword
+```
 
-# Mirror a website
+### 5) Mirror a website into a local folder
+
+```bash
 node lollipop.js sucker https://example.org mirror
+```
 
-# Run a script
+### 6) Run a JavaScript script
+
+```bash
 node lollipop.js js ./scripts/task.js
+# or
+node lollipop.js execute ./scripts/task.js
 ```
 
 ---
 
-## CLI Reference
+## Command Reference
 
 ```text
 Usage: lollipop [OPTIONS] [COMMANDS]
 
 Options:
-  -c <config_file>         Use a lolli.pop configuration file
-  <directory> <port>       Serve a directory at the specified port
-  -p <password>            Protect the server with Basic Auth
-  -h                       Show help
+  -c <config_file>      Use a lolli.pop configuration file
+  <directory> <port>    Serve a directory on the specified port
+  -p <password>         Enable Basic Auth for folder serving
+  -h                    Show help
 
 Commands:
-  monitor <port> <pass>    Start the system monitor dashboard
-  sucker <url> <folder>    Mirror a website into a folder
-  js <script.js>           Execute a JavaScript file
-  execute <script.js>      Alias for js
+  monitor <port> <password>   Start the monitor dashboard/API
+  sucker <url> <folder>       Mirror a website into a local folder
+  js <script.js>              Execute a JavaScript file
+  execute <script.js>         Alias for js
 ```
 
-### Default behavior (no args)
-Running `node lollipop.js` with no arguments scans the current working directory and starts one server per subdirectory, beginning at port `9000`.
+### Default behavior (when no args are passed)
+
+```bash
+node lollipop.js
+```
+
+Lollipop scans the **current directory** for subfolders and starts one server per folder beginning at port `9000`.
 
 ---
 
-## Config File (`lolli.pop`)
+## Configuration File (`lolli.pop`)
 
-You can orchestrate multiple actions from one file:
+You can run multiple actions from one file:
 
 ```text
 (monitor 5000 My$Up3rPass)
@@ -127,51 +149,78 @@ You can orchestrate multiple actions from one file:
 (./docs 4100)
 ```
 
-Start everything:
+Run it:
 
 ```bash
 node lollipop.js -c lolli.pop
 ```
 
 ### Rules
-- One declaration per parenthesized line.
-- First token determines declaration type:
+
+- Use one parenthesized declaration per line.
+- First token determines the action:
   - `monitor`
   - `sucker`
   - `js`
-  - otherwise interpreted as `<directory> <port> [-p <password>]`
-- Ports must be unique across all server/monitor declarations.
+  - otherwise treated as `<directory> <port> [-p <password>]`
+- Ports must be unique across server and monitor declarations.
 
 ---
 
-## Examples
+## Common New-User Tasks
 
 | Goal | Command |
 |---|---|
 | Serve all subfolders in current directory | `node lollipop.js` |
-| Secure server on port 9001 | `node lollipop.js ./site 9001 -p swordfish` |
-| Run monitor on port 7000 | `node lollipop.js monitor 7000 myPass` |
-| Mirror example.org | `node lollipop.js sucker https://example.org mirror` |
-| Execute a script | `node lollipop.js execute ./scripts/maintain.js` |
+| Serve a folder on port 9001 | `node lollipop.js ./site 9001` |
+| Add Basic Auth to server | `node lollipop.js ./site 9001 -p swordfish` |
+| Start monitor on port 7000 | `node lollipop.js monitor 7000 myPass` |
+| Mirror `example.org` locally | `node lollipop.js sucker https://example.org mirror` |
+| Execute a script file | `node lollipop.js execute ./scripts/maintain.js` |
 
 ---
 
-## Notes & Caveats
+## Project Layout
 
-- Basic Auth passwords are compared as plaintext.
-- For internet-exposed usage, place behind a reverse proxy/VPN and use HTTPS.
-- `sucker` relies on external pages and may fail on highly dynamic/SPA-heavy websites.
-- Press `Ctrl+C` to stop; the app prints `Lollipop!` before exit.
+```text
+.
+├── lollipop.js        # CLI entrypoint
+├── lolli.pop          # Example config file
+├── mechs/             # Command implementations (server, monitor, sucker, execute)
+├── package.json
+└── README.MD
+```
+
+---
+
+## Troubleshooting
+
+- **Nothing starts / command exits immediately**
+  - Check `node` version (`node --version`) and reinstall deps (`npm install`).
+- **"You must provide ..." messages**
+  - Re-run with required positional args shown in `node lollipop.js -h`.
+- **Port already in use**
+  - Pick a different port (e.g., 8081) or stop the process using the existing port.
+- **Website mirror is incomplete**
+  - Dynamic/SPA pages may not scrape fully with static crawling.
+
+---
+
+## Security Notes
+
+- Basic Auth credentials are simple username/password checks and should be treated as lightweight protection.
+- For internet-facing usage, run behind HTTPS + reverse proxy/VPN.
+- Avoid exposing monitor endpoints publicly without additional controls.
 
 ---
 
 ## Contributing
 
-PRs are welcome. Suggested flow:
+PRs are welcome.
 
 1. Fork the repo
-2. Create a branch
-3. Make your changes
+2. Create a feature branch
+3. Make changes
 4. Run checks
 5. Open a PR
 
