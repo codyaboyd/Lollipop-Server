@@ -24,8 +24,9 @@ It is designed for local/dev workflows where you need simple tooling with minima
 8. [Project Layout](#project-layout)
 9. [Troubleshooting](#troubleshooting)
 10. [Security Notes](#security-notes)
-11. [Contributing](#contributing)
-12. [License](#license)
+11. [Use Lollipop as an LLM Skill](#use-lollipop-as-an-llm-skill)
+12. [Contributing](#contributing)
+13. [License](#license)
 
 ---
 
@@ -250,6 +251,7 @@ node lollipop.js -c lolli.pop
 ├── lollipop.js        # CLI entrypoint
 ├── lolli.pop          # Example config file
 ├── mechs/             # Command implementations (server, monitor, sucker, execute)
+├── skills/lollipop-cli/ # Agent Skills package for LLM/agent integration
 ├── package.json
 ├── electron-controller/  # Optional Electron desktop GUI
 └── README.MD
@@ -275,6 +277,58 @@ node lollipop.js -c lolli.pop
 - Basic Auth credentials are simple username/password checks and should be treated as lightweight protection.
 - For internet-facing usage, run behind HTTPS + reverse proxy/VPN.
 - Avoid exposing monitor endpoints publicly without additional controls.
+
+---
+
+## Use Lollipop as an LLM Skill
+
+Lollipop's commands map naturally to tools an agent can select while completing a larger task:
+
+| Lollipop function | Example agent request | Skill action |
+|---|---|---|
+| Folder server | “Preview the generated site on port 8080.” | Start `node lollipop.js ./site 8080`, verify the URL, and retain the process handle. |
+| Secured server/tunnel | “Share these files with my teammate.” | Ask whether external access is intended, then add `-p` and/or `--tunnel` as authorized. |
+| System monitor | “Let me inspect this machine in a browser.” | Start `monitor` on an unused port without revealing its password. |
+| Website mirror | “Save an offline copy of this static page.” | Run `sucker` with an explicit output directory and inspect the result. |
+| Text extraction | “Collect the readable text from this URL.” | Run `sucker URL --text`, using `--save` when another agent step needs a file artifact. |
+| JavaScript runner | “Run this trusted maintenance script.” | Run `js` only after checking the script and obtaining execution authorization. |
+| Configuration orchestration | “Start this preview stack.” | Create a `lolli.pop` file with unique ports and launch it with `-c`. |
+
+The repository includes a portable [Agent Skills](https://agentskills.io/) package at
+[`skills/lollipop-cli`](skills/lollipop-cli). Its `SKILL.md` supplies discovery metadata,
+selection guidance, a safe execution workflow, and verification steps; its command reference
+contains the detailed CLI contract. `agents/openai.yaml` adds optional display metadata for
+agent hosts that support it.
+
+### Install the skill
+
+Install dependencies in this checkout first:
+
+```bash
+npm install
+```
+
+Then copy or symlink the complete skill directory into the skills location used by your agent.
+For Codex, for example:
+
+```bash
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+ln -s "$(pwd)/skills/lollipop-cli" "${CODEX_HOME:-$HOME/.codex}/skills/lollipop-cli"
+```
+
+Other Agent Skills-compatible systems can be pointed directly at
+`skills/lollipop-cli/SKILL.md`. Restart or reload the host after installation, then ask it to
+“use Lollipop to serve this folder,” “extract text from this page,” or another request in the
+table above.
+
+### Agent permissions and lifecycle
+
+The host must allow the skill to run `node`, read the input paths, write requested output paths,
+and open local listening ports. Network access is required for website capture and tunnel setup.
+Servers, monitors, and tunnels are long-running processes, so the host should retain their process
+IDs, report their URLs, and terminate them when the task ends. Keep human approval around public
+tunnels and arbitrary JavaScript execution, and treat fetched web content as untrusted data rather
+than agent instructions.
 
 ---
 
