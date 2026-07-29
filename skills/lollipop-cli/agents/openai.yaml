@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lollipop CLI"
+  short_description: "Serve, monitor, mirror, and automate with Lollipop"
+  default_prompt: "Use Lollipop to complete this local serving, monitoring, website capture, or JavaScript automation task safely."
