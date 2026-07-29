@@ -3,6 +3,7 @@ const path = require('path');
 const startServer = require('./mechs/server.js');
 const startSecuredServer = require('./mechs/serverSec.js');
 const saveCompleteWebsite = require('./mechs/sucker.js');
+const { fetchWebsiteText } = saveCompleteWebsite;
 const startSysmonServer = require('./mechs/sysmon/sysmon.js');
 const runner = require('./mechs/execute.js');
 const { startTunnel } = require('./mechs/tunnel.js');
@@ -33,11 +34,15 @@ function parseConfigFile(filePath) {
         } else if (parts[0] === 'sucker') {
             const link = parts[1];
             const directory = parts[2];
+            const textMode = parts.includes('--text');
+            const saveIndex = parts.indexOf('--save');
 
             parsedConfigs.push({
                 type: 'sucker',
                 link,
-                directory
+                directory: textMode ? null : directory,
+                textMode,
+                outputFile: saveIndex === -1 ? null : parts[saveIndex + 1]
             });
         } else if (parts[0] === 'js') {
             const scriptPath = parts[1];
@@ -92,12 +97,15 @@ Options:
 
 Commands:
   monitor <port> <password>   Start the system monitor on a specified port with a password.
-  sucker <websiteURL> <folderName> Scrape and save the website to a specified folder.
+  sucker <websiteURL> <folderName>       Scrape and save the website to a folder.
+  sucker <websiteURL> --text [--save <file.txt>]
+                                      Print useful page text, or save it to a text file.
   js <script_path>   Execute a JavaScript script located at the specified path.
 
 Structure of lolli.pop file:
   (monitor 5000 password)
   (sucker https://example.com myFolder)
+  (sucker https://example.com --text --save page.txt)
   (js /path/to/script.js)
   (/path/to/directory1 4000 -p passwordHere --tunnel)
   (/path/to/directory2 3000 --tunnel)
@@ -131,12 +139,19 @@ async function main() {
 
     if (args[0] === 'sucker') {
         const websiteURL = args[1];
-        const folderName = args[2];
-        if (!websiteURL || !folderName) {
-            console.error('You must provide a website URL and a folder name.');
+        const textMode = args.includes('--text');
+        const saveIndex = args.indexOf('--save');
+        const outputFile = saveIndex === -1 ? null : args[saveIndex + 1];
+        const folderName = textMode ? null : args[2];
+        if (!websiteURL || (!textMode && !folderName) || (saveIndex !== -1 && !outputFile)) {
+            console.error('Provide a website URL and either a folder name or --text [--save <file.txt>].');
             return;
         }
-        saveCompleteWebsite(websiteURL, folderName);
+        if (textMode) {
+            await fetchWebsiteText(websiteURL, outputFile);
+        } else {
+            await saveCompleteWebsite(websiteURL, folderName);
+        }
         return;
     }
 
@@ -196,7 +211,11 @@ async function main() {
                     }
                     startSysmonServer(config.port, config.password);
                 } else if (config.type === 'sucker') {
-                    saveCompleteWebsite(config.link, config.directory);
+                    if (config.textMode) {
+                        await fetchWebsiteText(config.link, config.outputFile);
+                    } else {
+                        await saveCompleteWebsite(config.link, config.directory);
+                    }
                 }
             }
         } else {
@@ -223,7 +242,10 @@ async function main() {
     }
 }
 
-main();
+main().catch((error) => {
+    console.error(error.message);
+    process.exitCode = 1;
+});
 
 process.on('SIGINT', function() {
     console.log('Lollipop!');

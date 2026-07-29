@@ -134,6 +134,19 @@ node lollipop.js monitor 7000 myPassword
 node lollipop.js sucker https://example.org mirror
 ```
 
+To fetch a page and print only its useful text content (without HTML tags,
+scripts, or styles), use text mode:
+
+```bash
+node lollipop.js sucker https://example.org --text
+```
+
+Add `--save` to write the text to a file instead of standard output:
+
+```bash
+node lollipop.js sucker https://example.org --text --save example.txt
+```
+
 ### 6) Run a JavaScript script
 
 ```bash
@@ -169,6 +182,8 @@ Options:
 Commands:
   monitor <port> <password>   Start the monitor dashboard/API
   sucker <url> <folder>       Mirror a website into a local folder
+  sucker <url> --text [--save <file.txt>]
+                              Print page text or save it to a file
   js <script.js>              Execute a JavaScript file
   execute <script.js>         Alias for js
 ```
@@ -190,6 +205,7 @@ You can run multiple actions from one file:
 ```text
 (monitor 5000 My$Up3rPass)
 (sucker https://example.com backupSite)
+(sucker https://example.com --text --save example.txt)
 (js ./scripts/cleanup.js)
 (./siteA 4000 -p admin123 --tunnel)
 (./docs 4100 --tunnel)
